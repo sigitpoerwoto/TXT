@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigit AP Officer - Virtual Assistant</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 400px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 600px;
+        }
+        .chat-header {
+            background-color: #00A19C; /* Petronas Teal */
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header span {
+            font-size: 0.8em;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #f9fbfd;
+        }
+        .message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        .message.bot {
+            background-color: #e2f0f0;
+            color: #004d4a;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+        .message.user {
+            background-color: #00A19C;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+        .chat-input {
+            display: flex;
+            padding: 12px;
+            background-color: #ffffff;
+            border-top: 1px solid #eee;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+        }
+        .chat-input button {
+            background-color: #00A19C;
+            color: white;
+            border: none;
+            padding: 0 16px;
+            margin-left: 8px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .chat-input button:hover {
+            background-color: #00827d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        Sigit Petronas AP Officer
+        <span>Virtual Assistant</span>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="message bot">
+            Selamat datang! Saya adalah asisten virtual dari Bapak Sigit. Ada yang bisa saya bantu terkait proses, jadwal, atau kelengkapan dokumen invoice hari ini?
+        </div>
+    </div>
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Ketik pertanyaan Anda..." autocomplete="off" onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Kirim</button>
+    </div>
+</div>
+
+<script>
+    function addMessage(text, sender) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const messageEl = document.createElement('div');
+        messageEl.classList.add('message', sender);
+        messageEl.innerHTML = text;
+        messagesDiv.appendChild(messageEl);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendMessage() {
+        const inputEl = document.getElementById('user-input');
+        const text = inputEl.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        inputEl.value = '';
+
+        setTimeout(() => {
+            const response = getBotResponse(text.toLowerCase());
+            addMessage(response, 'bot');
+        }, 600);
+    }
+
+    function getBotResponse(input) {
+        // Logika Waktu Penerimaan
+        if (input.includes('waktu') || input.includes('jam') || input.includes('kapan kirim') || input.includes('tanggal kirim')) {
+            return "Vendor mengirimkan invoice antara tanggal 1 s/d tanggal 20 setiap bulannya[cite: 2]. Invoice diterima pada hari kerja (Senin-Jumat) antara pukul 07.00-16.00[cite: 2].";
+        }
+        // Logika Pengiriman Email & Dokumen
+        if (input.includes('email') || input.includes('kirim ke mana') || input.includes('format')) {
+            return "Penerimaan invoice diwajibkan untuk mengirimkan scan invoice beserta dokumen pendukung dan faktur pajak dalam format pdf (dokumen tidak melebihi 10MB) ke email: sigit.ekobrotoseno@petronas.com[cite: 2].";
+        }
+        // Logika Materai
+        if (input.includes('materai') || input.includes('stamp duty')) {
+            return "Seluruh invoice dengan jumlah lebih dari Rp 5.000.000 harus dibubuhkan materai Rp 10.000[cite: 2].";
+        }
+        // Logika Faktur Pajak
+        if (input.includes('faktur pajak') || input.includes('tanggal faktur')) {
+            return "Tanggal Faktur Pajak harus sama dengan tanggal invoice, dan harus berada dalam bulan yang sama dengan tanggal diterimanya invoice yang sah dan lengkap[cite: 5].";
+        }
+        // Logika Pembayaran
+        if (input.includes('bayar') || input.includes('pembayaran') || input.includes('termin')) {
+            return "Invoice akan dibayar 30 hari sejak diterima oleh Finance Department[cite: 5]. Pembayaran terakhir akan dilakukan pada tanggal 25 di setiap bulannya, atau hari kerja terakhir sebelum tanggal 25 jika jatuh pada hari libur[cite: 5].";
+        }
+        // Logika Status Invoice & Bukti Transfer
+        if (input.includes('status') || input.includes('bukti transfer') || input.includes('slip')) {
+            return "Untuk menanyakan status invoice atau meminta bukti transfer, vendor dapat mengirimkan email ke: sigit.ekobrotoseno@petronas.com[cite: 5, 7]. Respon akan diberikan paling lambat hari kerja terakhir pada minggu pertanyaan diajukan[cite: 5].";
+        }
+        // Logika SSP & Bukti Potong
+        if (input.includes('ssp') || input.includes('bukti potong') || input.includes('withholding')) {
+            return "Permintaan SSP dan Bukti Potong dapat dikirim melalui email ke: hanifah.nabillah@petronas.com.my, zhafirahamanda.putri@petronas.com.my [cite: 7], atau winna.meirita@petronas.com.my[cite: 10].";
+        }
+        // Logika NPWP & Alamat Entitas
+        if (input.includes('npwp') || input.includes('alamat') || input.includes('entitas')) {
+            return "Alamat pengiriman untuk semua entitas difokuskan ke: TALAVERA SUITE LANTAI 3-TALAVERA OFFICE PARK, JALAN LETJEN TB. SIMATUPANG KAV.22-26, CILANDAK BARAT, JAKARTA SELATAN 12430 [cite: 10, 12, 15].<br><br>Beberapa NPWP Entitas kami:<br>- PC KETAPANG II LTD: 02.914.104.1-081.000 [cite: 10]<br>- PC NORTH MADURA II LTD: 73.810.523.8-081.000 [cite: 12]<br>- PETRONAS NORTH KETAPANG SDN. BHD.: 60.549.851.8-081.000 [cite: 15]";
+        }
+        
+        // Fallback Response (OOW / Tidak ada di dokumen)
+        return "Mohon maaf, terkait pertanyaan tersebut saya tidak memiliki informasi yang memadai. Saat ini, Bapak Sigit sedang tidak berada di mejanya atau sedang menjalankan tugas lain. Mohon kesediaannya untuk meninggalkan pesan Anda di sini atau melalui email, dan beliau akan segera menghubungi Anda kembali secepatnya.";
+    }
+</script>
+
+</body>
+</html>
