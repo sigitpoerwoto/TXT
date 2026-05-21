@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -12,20 +12,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
         .chat-container {
-            width: 400px;
+            width: 100%;
+            max-width: 450px;
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            height: 600px;
+            height: 85vh;
         }
         .chat-header {
-            background-color: #00A19C; /* Petronas Teal */
+            background-color: #00A19C;
             color: white;
             padding: 16px;
             text-align: center;
@@ -50,10 +51,11 @@
         }
         .message {
             max-width: 85%;
-            padding: 10px 14px;
+            padding: 12px 16px;
             border-radius: 8px;
             font-size: 0.95em;
-            line-height: 1.4;
+            line-height: 1.5;
+            word-wrap: break-word;
         }
         .message.bot {
             background-color: #e2f0f0;
@@ -75,7 +77,7 @@
         }
         .chat-input input {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ccc;
             border-radius: 20px;
             outline: none;
@@ -85,7 +87,7 @@
             background-color: #00A19C;
             color: white;
             border: none;
-            padding: 0 16px;
+            padding: 0 20px;
             margin-left: 8px;
             border-radius: 20px;
             cursor: pointer;
@@ -106,7 +108,7 @@
     </div>
     <div class="chat-messages" id="chat-messages">
         <div class="message bot">
-            Selamat datang! Saya adalah asisten virtual dari Bapak Sigit. Ada yang bisa saya bantu terkait proses, jadwal, atau kelengkapan dokumen invoice hari ini?
+            Halo! Saya adalah Virtual Assistant Bapak Sigit. Ada yang bisa saya bantu terkait informasi jadwal penerimaan, pengiriman, materai, faktur pajak, NPWP entitas, atau pembayaran invoice hari ini?
         </div>
     </div>
     <div class="chat-input">
@@ -142,45 +144,72 @@
         setTimeout(() => {
             const response = getBotResponse(text.toLowerCase());
             addMessage(response, 'bot');
-        }, 600);
+        }, 500);
     }
 
     function getBotResponse(input) {
-        // Logika Waktu Penerimaan
-        if (input.includes('waktu') || input.includes('jam') || input.includes('kapan kirim') || input.includes('tanggal kirim')) {
-            return "Vendor mengirimkan invoice antara tanggal 1 s/d tanggal 20 setiap bulannya[cite: 2]. Invoice diterima pada hari kerja (Senin-Jumat) antara pukul 07.00-16.00[cite: 2].";
-        }
-        // Logika Pengiriman Email & Dokumen
-        if (input.includes('email') || input.includes('kirim ke mana') || input.includes('format')) {
-            return "Penerimaan invoice diwajibkan untuk mengirimkan scan invoice beserta dokumen pendukung dan faktur pajak dalam format pdf (dokumen tidak melebihi 10MB) ke email: sigit.ekobrotoseno@petronas.com[cite: 2].";
-        }
-        // Logika Materai
-        if (input.includes('materai') || input.includes('stamp duty')) {
-            return "Seluruh invoice dengan jumlah lebih dari Rp 5.000.000 harus dibubuhkan materai Rp 10.000[cite: 2].";
-        }
-        // Logika Faktur Pajak
-        if (input.includes('faktur pajak') || input.includes('tanggal faktur')) {
-            return "Tanggal Faktur Pajak harus sama dengan tanggal invoice, dan harus berada dalam bulan yang sama dengan tanggal diterimanya invoice yang sah dan lengkap[cite: 5].";
-        }
-        // Logika Pembayaran
-        if (input.includes('bayar') || input.includes('pembayaran') || input.includes('termin')) {
-            return "Invoice akan dibayar 30 hari sejak diterima oleh Finance Department[cite: 5]. Pembayaran terakhir akan dilakukan pada tanggal 25 di setiap bulannya, atau hari kerja terakhir sebelum tanggal 25 jika jatuh pada hari libur[cite: 5].";
-        }
-        // Logika Status Invoice & Bukti Transfer
-        if (input.includes('status') || input.includes('bukti transfer') || input.includes('slip')) {
-            return "Untuk menanyakan status invoice atau meminta bukti transfer, vendor dapat mengirimkan email ke: sigit.ekobrotoseno@petronas.com[cite: 5, 7]. Respon akan diberikan paling lambat hari kerja terakhir pada minggu pertanyaan diajukan[cite: 5].";
-        }
-        // Logika SSP & Bukti Potong
-        if (input.includes('ssp') || input.includes('bukti potong') || input.includes('withholding')) {
-            return "Permintaan SSP dan Bukti Potong dapat dikirim melalui email ke: hanifah.nabillah@petronas.com.my, zhafirahamanda.putri@petronas.com.my [cite: 7], atau winna.meirita@petronas.com.my[cite: 10].";
-        }
-        // Logika NPWP & Alamat Entitas
-        if (input.includes('npwp') || input.includes('alamat') || input.includes('entitas')) {
-            return "Alamat pengiriman untuk semua entitas difokuskan ke: TALAVERA SUITE LANTAI 3-TALAVERA OFFICE PARK, JALAN LETJEN TB. SIMATUPANG KAV.22-26, CILANDAK BARAT, JAKARTA SELATAN 12430 [cite: 10, 12, 15].<br><br>Beberapa NPWP Entitas kami:<br>- PC KETAPANG II LTD: 02.914.104.1-081.000 [cite: 10]<br>- PC NORTH MADURA II LTD: 73.810.523.8-081.000 [cite: 12]<br>- PETRONAS NORTH KETAPANG SDN. BHD.: 60.549.851.8-081.000 [cite: 15]";
+        // Fungsi bantu agar pencarian kata lebih pintar
+        const contains = (words) => words.some(word => input.includes(word));
+        const containsAll = (words) => words.every(word => input.includes(word));
+
+        // 1. Logika Waktu Penerimaan
+        if (contains(['kapan', 'waktu', 'jam', 'tanggal', 'hari']) && contains(['kirim', 'invoice', 'terima', 'masuk', 'penyerahan'])) {
+            return "<strong>WAKTU PENERIMAAN INVOICE:</strong><br>Vendor mengirimkan invoice antara <strong>tanggal 1 s/d tanggal 20</strong> setiap bulannya. Invoice akan diterima pada setiap hari kerja (Senin-Jumat) antara pukul <strong>07.00 - 16.00</strong>.";
         }
         
-        // Fallback Response (OOW / Tidak ada di dokumen)
-        return "Mohon maaf, terkait pertanyaan tersebut saya tidak memiliki informasi yang memadai. Saat ini, Bapak Sigit sedang tidak berada di mejanya atau sedang menjalankan tugas lain. Mohon kesediaannya untuk meninggalkan pesan Anda di sini atau melalui email, dan beliau akan segera menghubungi Anda kembali secepatnya.";
+        // 2. Logika Pengiriman Email / Dokumen
+        if (contains(['email', 'scan', 'pdf', 'ukuran', 'format']) || (contains(['kirim', 'invoice']) && contains(['kemana', 'dimana', 'ke siapa']))) {
+            return "<strong>FORMAT & PENGIRIMAN:</strong><br>Mohon kirimkan scan invoice beserta dokumen pendukung (termasuk faktur pajak format PDF dari sistem e-faktur) dengan ukuran dokumen <strong>tidak melebihi 10MB</strong> ke email: <strong>sigit.ekobrotoseno@petronas.com</strong>.";
+        }
+        
+        // 3. Logika Materai
+        if (contains(['materai', 'stamp', 'bea', 'matrai'])) {
+            return "<strong>KETENTUAN MATERAI:</strong><br>Seluruh invoice dengan jumlah <strong>lebih dari Rp 5.000.000</strong> wajib dibubuhkan materai <strong>Rp 10.000</strong>.";
+        }
+        
+        // 4. Logika Faktur Pajak
+        if (contains(['faktur', 'pajak', 'e-faktur', 'efaktur'])) {
+            return "<strong>FAKTUR PAJAK:</strong><br>Tanggal Faktur Pajak <strong>harus sama</strong> dengan tanggal invoice. Tanggal tersebut juga harus berada dalam bulan yang sama dengan tanggal diterimanya invoice yang sah dan lengkap oleh Petronas.";
+        }
+        
+        // 5. Logika Pembayaran
+        if (contains(['bayar', 'pembayaran', 'termin', 'cair'])) {
+            return "<strong>JADWAL PEMBAYARAN:</strong><br>Invoice akan dibayar <strong>30 hari</strong> sejak diterima oleh Finance Department. Pembayaran terakhir dilakukan pada <strong>tanggal 25 setiap bulannya</strong> (atau hari kerja terakhir sebelum tanggal 25 jika jatuh pada Hari Libur Nasional).";
+        }
+        
+        // 6. Logika Status Invoice / Bukti Transfer
+        if (contains(['status', 'bukti', 'transfer', 'slip'])) {
+            return "<strong>STATUS & BUKTI TRANSFER:</strong><br>Untuk menanyakan status invoice atau meminta bukti transfer, silakan kirim email ke <strong>sigit.ekobrotoseno@petronas.com</strong>. Kami akan merespon paling lambat hari kerja terakhir pada minggu pertanyaan diajukan.";
+        }
+        
+        // 7. Logika SSP & Bukti Potong
+        if (contains(['ssp', 'bukti potong', 'withholding'])) {
+            return "<strong>SSP & BUKTI POTONG:</strong><br>Untuk permintaan SSP dan Bukti Potong, mohon kirim email ke:<br>- hanifah.nabillah@petronas.com.my<br>- zhafirahamanda.putri@petronas.com.my<br>- winna.meirita@petronas.com.my";
+        }
+        
+        // 8. Logika NPWP & Alamat Entitas
+        if (contains(['npwp', 'alamat', 'entitas', 'pt', 'perusahaan'])) {
+            return "<strong>ALAMAT PENGIRIMAN:</strong><br>TALAVERA SUITE LANTAI 3-TALAVERA OFFICE PARK,<br>JALAN LETJEN TB. SIMATUPANG KAV.22-26, CILANDAK BARAT, JAKARTA SELATAN, DKI JAKARTA - 12430<br><br>" +
+                   "<strong>DAFTAR NPWP ENTITAS:</strong><br>" +
+                   "• PC KETAPANG LTD. (02.058.649.1-081.000)<br>" +
+                   "• NATUNA 1 B.V. (02.058.639.2-081.000)<br>" +
+                   "• PETRONAS CARIGALI JABUNG LTD (01.808.585.2-081.000)<br>" +
+                   "• PC KETAPANG II LTD (02.914.104.1-081.000)<br>" +
+                   "• PC MADURA LTD (02.072.304.5-081.000)<br>" +
+                   "• PC MURIAH LTD (02.072.052.0-081.000)<br>" +
+                   "• PC NORTH MADURA II LTD (73.810.523.8-081.000)<br>" +
+                   "• PC SAKAKEMANG BV (86.662.189.9-081.000)<br>" +
+                   "• PETRONAS ANDAMAN III INDONESIA B.V. (93.745.630.9-016.000)<br>" +
+                   "• PETRONAS CARIGALI (KETAPANG) LTD. (02.058.649.1-081.000)<br>" +
+                   "• PETRONAS E&P BOBARA SDN. BHD. (20.366.997.3-081.000)<br>" +
+                   "• PETRONAS ENERGY BINAIYA SDN BHD (1000 0000 0487 1748)<br>" +
+                   "• PETRONAS ENERGY SERPANG SDN BHD (1000 0000 0486 5354)<br>" +
+                   "• PETRONAS MASELA SDN. BHD. (39.807.587.9-081.000)<br>" +
+                   "• PETRONAS NORTH KETAPANG SDN. BHD. (60.549.851.8-081.000)";
+        }
+        
+        // Fallback Response (Jika pertanyaan tidak terdeteksi)
+        return "Mohon maaf, sistem tidak dapat mengenali pertanyaan tersebut secara otomatis. Saat ini Bapak Sigit sedang tidak berada di meja. Jika berkenan, silakan tinggalkan pesan Anda secara detail melalui email atau kolom Teams ini, dan beliau akan segera menghubungi Anda kembali.";
     }
 </script>
 
