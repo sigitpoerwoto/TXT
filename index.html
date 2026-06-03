@@ -97,6 +97,20 @@
         .chat-input button:hover {
             background-color: #00827d;
         }
+        .btn-link {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background-color: #00A19C;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .btn-link:hover {
+            background-color: #00827d;
+        }
     </style>
 </head>
 <body>
@@ -148,16 +162,17 @@
     }
 
     function getBotResponse(input) {
-        // Fungsi bantu agar pencarian kata lebih pintar
         const contains = (words) => words.some(word => input.includes(word));
-        const containsAll = (words) => words.every(word => input.includes(word));
-
-        // 1. Logika Waktu Penerimaan
-        if (contains(['kapan', 'waktu', 'jam', 'tanggal', 'hari']) && contains(['kirim', 'invoice', 'terima', 'masuk', 'penyerahan'])) {
-            return "<strong>WAKTU PENERIMAAN INVOICE:</strong><br>Vendor mengirimkan invoice antara <strong>tanggal 1 s/d tanggal 20</strong> setiap bulannya. Invoice akan diterima pada setiap hari kerja (Senin-Jumat) antara pukul <strong>07.00 - 16.00</strong>.";
+        
+        // 1. Logika Waktu & Syarat Penerimaan (Diperbarui)
+        if (contains(['kapan', 'waktu', 'jam', 'tanggal', 'jadwal', 'penerimaan', 'terima', 'syarat']) && (contains(['invoice', 'tagihan', 'dokumen']) || input.includes('penerimaan'))) {
+            return "<strong>WAKTU & SYARAT PENERIMAAN INVOICE:</strong><br><br>" +
+                   "<strong>1. Jadwal:</strong> Vendor mengirimkan invoice antara <strong>tanggal 1 s/d tanggal 20</strong> setiap bulannya. Invoice diterima pada setiap hari kerja (Senin-Jumat) antara pukul <strong>07.00 - 16.00</strong>.<br><br>" +
+                   "<strong>2. Syarat Dokumen:</strong> Diwajibkan mengirimkan scan invoice beserta dokumen pendukungnya. Ini termasuk faktur pajak dalam format PDF dari sistem e-faktur.<br><br>" +
+                   "<strong>3. Pengiriman:</strong> Dokumen tidak boleh melebihi <strong>10MB</strong> dan dikirimkan terlebih dahulu melalui email ke: <strong>sigit.ekobrotoseno@petronas.com</strong>.";
         }
         
-        // 2. Logika Pengiriman Email / Dokumen
+        // 2. Logika Pengiriman Email / Dokumen (Spesifik)
         if (contains(['email', 'scan', 'pdf', 'ukuran', 'format']) || (contains(['kirim', 'invoice']) && contains(['kemana', 'dimana', 'ke siapa']))) {
             return "<strong>FORMAT & PENGIRIMAN:</strong><br>Mohon kirimkan scan invoice beserta dokumen pendukung (termasuk faktur pajak format PDF dari sistem e-faktur) dengan ukuran dokumen <strong>tidak melebihi 10MB</strong> ke email: <strong>sigit.ekobrotoseno@petronas.com</strong>.";
         }
@@ -208,8 +223,16 @@
                    "• PETRONAS NORTH KETAPANG SDN. BHD. (60.549.851.8-081.000)";
         }
         
+        // 9. Logika Kontak & Tim Teams
+        if (contains(['kontak', 'hubungi', 'koordinasi', 'teams', 'chat'])) {
+            return "Untuk koordinasi lebih cepat, silakan tinggalkan pesan melalui email ke <strong>sigit.ekobrotoseno@petronas.com</strong> atau langsung klik tautan berikut untuk mengirimkan pesan via Microsoft Teams.<br><br>" + 
+                   "<a href='https://teams.microsoft.com/l/chat/0/0?users=sigit.ekobrotoseno@petronas.com.my' target='_blank' class='btn-link'>Chat via MS Teams</a>";
+        }
+        
         // Fallback Response (Jika pertanyaan tidak terdeteksi)
-        return "Mohon maaf, sistem tidak dapat mengenali pertanyaan tersebut secara otomatis. Saat ini Bapak Sigit sedang tidak berada di meja. Jika berkenan, silakan tinggalkan pesan Anda secara detail melalui email atau kolom Teams ini, dan beliau akan segera menghubungi Anda kembali.";
+        return "Mohon maaf, sistem tidak dapat mengenali pertanyaan tersebut secara otomatis. Saat ini Bapak Sigit sedang tidak berada di meja.<br><br>" +
+               "Untuk koordinasi lebih cepat, silakan klik tautan di bawah ini untuk meninggalkan pesan secara langsung. Beliau akan segera merespon setelah kembali.<br><br>" +
+               "<a href='https://teams.microsoft.com/l/chat/0/0?users=sigit.ekobrotoseno@petronas.com.my' target='_blank' class='btn-link'>Chat via MS Teams</a>";
     }
 </script>
 
