@@ -122,7 +122,7 @@
     </div>
     <div class="chat-messages" id="chat-messages">
         <div class="message bot">
-            Halo! Saya adalah Virtual Assistant Bapak Sigit. Ada yang bisa saya bantu terkait informasi jadwal penerimaan, pengiriman, materai, faktur pajak, NPWP entitas, atau pembayaran invoice hari ini?
+            Halo! Saya adalah Virtual Assistant Bapak Sigit. Ada yang bisa saya bantu terkait informasi jadwal penerimaan, alasan penolakan, pengiriman, materai, faktur pajak, NPWP entitas, atau pembayaran invoice hari ini?
         </div>
     </div>
     <div class="chat-input">
@@ -164,7 +164,20 @@
     function getBotResponse(input) {
         const contains = (words) => words.some(word => input.includes(word));
         
-        // 1. Logika Waktu & Syarat Penerimaan (Diperbarui)
+        // 1. Logika Alasan Penolakan / Tidak Diterima (Diperbarui dengan SCC/SES/GRN)
+        if ((contains(['kenapa', 'mengapa', 'alasan']) && contains(['tolak', 'ditolak', 'tidak diterima', 'gagal', 'kembali', 'dikembalikan'])) || contains(['tidak diterima', 'ditolak', 'dikembalikan'])) {
+            return "<strong>ALASAN INVOICE DITOLAK / TIDAK DITERIMA:</strong><br><br>" +
+                   "Jika invoice Anda dikembalikan atau tidak diterima, hal ini umumnya terkait dengan prosedur <strong>Waktu & Syarat Penerimaan</strong> kami:<br><br>" +
+                   "<strong>1. Di Luar Jadwal:</strong> Pengiriman dilakukan melewati <strong>tanggal 20</strong> atau di luar jam kerja (07.00 - 16.00). Invoice harus dikirim antara tanggal 1 s/d 20 setiap bulannya.<br>" +
+                   "<strong>2. Dokumen Tidak Lengkap:</strong> Tidak menyertakan dokumen pendukung atau Faktur Pajak PDF dari e-Faktur.<br>" +
+                   "<strong>3. Kendala Teknis:</strong> Ukuran lampiran email melebihi batas maksimal <strong>10MB</strong>.<br>" +
+                   "<strong>4. Materai/Pajak:</strong> Tidak ada materai Rp 10.000 (untuk tagihan > Rp 5.000.000) atau tanggal Faktur Pajak tidak sama dengan tanggal invoice.<br>" +
+                   "<strong>5. Kelengkapan Dokumen Kontrak:</strong> Karena invoice merupakan penagihan terkait kontrak, wajib melampirkan dokumen <strong>SCC (Service Completed Certificate)</strong> yang diawali oleh <strong>SES (Service Entry Sheet)</strong> dari User (untuk tagihan jasa), atau dokumen <strong>GRN (Good Receipt Note)</strong> (untuk tagihan produk/barang). Pastikan angka pada dokumen tersebut <em>tie up</em> (sesuai) dengan nilai pada invoice dan faktur pajak.<br><br>" +
+                   "Untuk memastikan detail spesifik penolakan dokumen Anda, silakan hubungi saya langsung melalui tautan berikut:<br><br>" +
+                   "<a href='https://teams.microsoft.com/l/chat/0/0?users=sigit.ekobrotoseno@petronas.com.my' target='_blank' class='btn-link'>Tanya Detail via MS Teams</a>";
+        }
+
+        // 2. Logika Waktu & Syarat Penerimaan
         if (contains(['kapan', 'waktu', 'jam', 'tanggal', 'jadwal', 'penerimaan', 'terima', 'syarat']) && (contains(['invoice', 'tagihan', 'dokumen']) || input.includes('penerimaan'))) {
             return "<strong>WAKTU & SYARAT PENERIMAAN INVOICE:</strong><br><br>" +
                    "<strong>1. Jadwal:</strong> Vendor mengirimkan invoice antara <strong>tanggal 1 s/d tanggal 20</strong> setiap bulannya. Invoice diterima pada setiap hari kerja (Senin-Jumat) antara pukul <strong>07.00 - 16.00</strong>.<br><br>" +
@@ -172,37 +185,37 @@
                    "<strong>3. Pengiriman:</strong> Dokumen tidak boleh melebihi <strong>10MB</strong> dan dikirimkan terlebih dahulu melalui email ke: <strong>sigit.ekobrotoseno@petronas.com</strong>.";
         }
         
-        // 2. Logika Pengiriman Email / Dokumen (Spesifik)
+        // 3. Logika Pengiriman Email / Dokumen (Spesifik)
         if (contains(['email', 'scan', 'pdf', 'ukuran', 'format']) || (contains(['kirim', 'invoice']) && contains(['kemana', 'dimana', 'ke siapa']))) {
             return "<strong>FORMAT & PENGIRIMAN:</strong><br>Mohon kirimkan scan invoice beserta dokumen pendukung (termasuk faktur pajak format PDF dari sistem e-faktur) dengan ukuran dokumen <strong>tidak melebihi 10MB</strong> ke email: <strong>sigit.ekobrotoseno@petronas.com</strong>.";
         }
         
-        // 3. Logika Materai
+        // 4. Logika Materai
         if (contains(['materai', 'stamp', 'bea', 'matrai'])) {
             return "<strong>KETENTUAN MATERAI:</strong><br>Seluruh invoice dengan jumlah <strong>lebih dari Rp 5.000.000</strong> wajib dibubuhkan materai <strong>Rp 10.000</strong>.";
         }
         
-        // 4. Logika Faktur Pajak
+        // 5. Logika Faktur Pajak
         if (contains(['faktur', 'pajak', 'e-faktur', 'efaktur'])) {
             return "<strong>FAKTUR PAJAK:</strong><br>Tanggal Faktur Pajak <strong>harus sama</strong> dengan tanggal invoice. Tanggal tersebut juga harus berada dalam bulan yang sama dengan tanggal diterimanya invoice yang sah dan lengkap oleh Petronas.";
         }
         
-        // 5. Logika Pembayaran
+        // 6. Logika Pembayaran
         if (contains(['bayar', 'pembayaran', 'termin', 'cair'])) {
             return "<strong>JADWAL PEMBAYARAN:</strong><br>Invoice akan dibayar <strong>30 hari</strong> sejak diterima oleh Finance Department. Pembayaran terakhir dilakukan pada <strong>tanggal 25 setiap bulannya</strong> (atau hari kerja terakhir sebelum tanggal 25 jika jatuh pada Hari Libur Nasional).";
         }
         
-        // 6. Logika Status Invoice / Bukti Transfer
+        // 7. Logika Status Invoice / Bukti Transfer
         if (contains(['status', 'bukti', 'transfer', 'slip'])) {
             return "<strong>STATUS & BUKTI TRANSFER:</strong><br>Untuk menanyakan status invoice atau meminta bukti transfer, silakan kirim email ke <strong>sigit.ekobrotoseno@petronas.com</strong>. Kami akan merespon paling lambat hari kerja terakhir pada minggu pertanyaan diajukan.";
         }
         
-        // 7. Logika SSP & Bukti Potong
+        // 8. Logika SSP & Bukti Potong
         if (contains(['ssp', 'bukti potong', 'withholding'])) {
             return "<strong>SSP & BUKTI POTONG:</strong><br>Untuk permintaan SSP dan Bukti Potong, mohon kirim email ke:<br>- hanifah.nabillah@petronas.com.my<br>- zhafirahamanda.putri@petronas.com.my<br>- winna.meirita@petronas.com.my";
         }
         
-        // 8. Logika NPWP & Alamat Entitas
+        // 9. Logika NPWP & Alamat Entitas
         if (contains(['npwp', 'alamat', 'entitas', 'pt', 'perusahaan'])) {
             return "<strong>ALAMAT PENGIRIMAN:</strong><br>TALAVERA SUITE LANTAI 3-TALAVERA OFFICE PARK,<br>JALAN LETJEN TB. SIMATUPANG KAV.22-26, CILANDAK BARAT, JAKARTA SELATAN, DKI JAKARTA - 12430<br><br>" +
                    "<strong>DAFTAR NPWP ENTITAS:</strong><br>" +
@@ -223,7 +236,7 @@
                    "• PETRONAS NORTH KETAPANG SDN. BHD. (60.549.851.8-081.000)";
         }
         
-        // 9. Logika Kontak & Tim Teams
+        // 10. Logika Kontak & Tim Teams
         if (contains(['kontak', 'hubungi', 'koordinasi', 'teams', 'chat'])) {
             return "Untuk koordinasi lebih cepat, silakan tinggalkan pesan melalui email ke <strong>sigit.ekobrotoseno@petronas.com</strong> atau langsung klik tautan berikut untuk mengirimkan pesan via Microsoft Teams.<br><br>" + 
                    "<a href='https://teams.microsoft.com/l/chat/0/0?users=sigit.ekobrotoseno@petronas.com.my' target='_blank' class='btn-link'>Chat via MS Teams</a>";
@@ -231,7 +244,7 @@
         
         // Fallback Response (Jika pertanyaan tidak terdeteksi)
         return "Mohon maaf, sistem tidak dapat mengenali pertanyaan tersebut secara otomatis. Saat ini Bapak Sigit sedang tidak berada di meja.<br><br>" +
-               "Untuk koordinasi lebih cepat, silakan klik tautan di bawah ini untuk meninggalkan pesan secara langsung. Beliau akan segera merespon setelah kembali.<br><br>" +
+               "Untuk koordinasi lebih cepat terkait alasan penolakan spesifik atau informasi lainnya, silakan klik tautan di bawah ini untuk meninggalkan pesan secara langsung. Beliau akan segera merespon setelah kembali.<br><br>" +
                "<a href='https://teams.microsoft.com/l/chat/0/0?users=sigit.ekobrotoseno@petronas.com.my' target='_blank' class='btn-link'>Chat via MS Teams</a>";
     }
 </script>
